@@ -2,16 +2,31 @@
  * Copyright (c) 2012-2013, Eelco Cramer
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 
- * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * Redistributions of source code must retain the above copyright notice, this
+ * list of conditions and the following disclaimer.
+ * Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 
 #include <v8.h>
 #include <node.h>
 #include <string.h>
+#include <vector>
 #include <stdlib.h>
 #include <unistd.h>
 #include <node_object_wrap.h>
@@ -43,9 +58,14 @@ void DeviceINQ::EIO_SdpSearch(uv_work_t *req) {
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-    NSString *address = [NSString stringWithCString:baton->address encoding:NSASCIIStringEncoding];
-    BluetoothWorker *worker = [BluetoothWorker getInstance];
-    baton->channelID = [worker getRFCOMMChannelID: address];
+    NSString *address = [NSString stringWithCString:baton -> address
+                                           encoding:NSASCIIStringEncoding];
+
+    NSString *uuid = [NSString stringWithCString:baton -> uuid
+                                        encoding:NSASCIIStringEncoding];
+
+    baton -> channelID = [[BluetoothWorker getInstance] getRFCOMMChannelID:address
+                                                                  withUUID:uuid];
 
     [pool release];
 }
@@ -54,11 +74,11 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
     sdp_baton_t *baton = static_cast<sdp_baton_t *>(req->data);
 
     TryCatch try_catch;
-    
+
     Local<Value> argv[1];
     argv[0] = Integer::New(baton->channelID);
     baton->cb->Call(Context::GetCurrent()->Global(), 1, argv);
-    
+
     if (try_catch.HasCaught()) {
         FatalException(try_catch);
     }
@@ -71,26 +91,26 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
 
 void DeviceINQ::Init(Handle<Object> target) {
     HandleScope scope;
-    
+
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
     t->InstanceTemplate()->SetInternalFieldCount(1);
     t->SetClassName(String::NewSymbol("DeviceINQ"));
-    
+
     NODE_SET_PROTOTYPE_METHOD(t, "inquire", Inquire);
     NODE_SET_PROTOTYPE_METHOD(t, "findSerialPortChannel", SdpSearch);
     target->Set(String::NewSymbol("DeviceINQ"), t->GetFunction());
     target->Set(String::NewSymbol("DeviceINQ"), t->GetFunction());
 }
-    
+
 DeviceINQ::DeviceINQ() {
-        
+
 }
-    
+
 DeviceINQ::~DeviceINQ() {
-        
+
 }
-    
+
 Handle<Value> DeviceINQ::New(const Arguments& args) {
     HandleScope scope;
 
@@ -104,7 +124,7 @@ Handle<Value> DeviceINQ::New(const Arguments& args) {
 
     return args.This();
 }
- 
+
 Handle<Value> DeviceINQ::Inquire(const Arguments& args) {
     HandleScope scope;
 
@@ -139,7 +159,7 @@ Handle<Value> DeviceINQ::Inquire(const Arguments& args) {
             MakeCallback(args.This(), "emit", 3, argv);
         }
     } while (result != 0);
-    
+
     delete info;
     pipe_consumer_free(c);
 
@@ -152,31 +172,37 @@ Handle<Value> DeviceINQ::Inquire(const Arguments& args) {
     [pool release];
     return Undefined();
 }
-    
+
 Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
     HandleScope scope;
-    
-    const char *usage = "usage: sdpSearchForRFCOMM(address, callback)";
-    if (args.Length() != 2) {
+
+    const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
+    if (args.Length() != 3) {
         return scope.Close(ThrowException(Exception::Error(String::New(usage))));
     }
-    
-    if (!args[0]->IsString()) {
+
+    if (!args[0] -> IsString()) {
         return scope.Close(ThrowException(Exception::TypeError(String::New("First argument should be a string value"))));
     }
     String::Utf8Value address(args[0]);
 
-    if(!args[1]->IsFunction()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Second argument must be a function"))));
+    if (!args[1] -> IsString()) {
+        return scope.Close(ThrowException(Exception::TypeError(String::New("Second argument should be a string value"))));
     }
-    Local<Function> cb = Local<Function>::Cast(args[1]);
-            
+    String::Utf8Value uuid(args[1]);
+
+    if (!args[2] -> IsFunction()) {
+        return scope.Close(ThrowException(Exception::TypeError(String::New("Third argument must be a function"))));
+    }
+    Local<Function> cb = Local<Function>::Cast(args[2]);
+
     DeviceINQ* inquire = ObjectWrap::Unwrap<DeviceINQ>(args.This());
-    
+
     sdp_baton_t *baton = new sdp_baton_t();
     baton->inquire = inquire;
     baton->cb = Persistent<Function>::New(cb);
     strcpy(baton->address, *address);
+    strcpy(baton->uuid, *uuid);
     baton->channelID = -1;
     baton->request.data = baton;
     baton->inquire->Ref();
