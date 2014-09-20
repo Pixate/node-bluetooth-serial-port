@@ -25,16 +25,12 @@
 #include <node_object_wrap.h>
 #include "pipe.h"
 
-#ifndef RFCOMM_UUID
-#define RFCOMM_UUID 0x0003
-#endif
-
 using namespace node;
 using namespace v8;
 
 /** Private class for wrapping a pipe */
 @interface Pipe : NSObject {
-	pipe_t *pipe;
+  pipe_t *pipe;
 }
 @property (nonatomic, assign) pipe_t *pipe;
 @end
@@ -275,29 +271,28 @@ using namespace v8;
 }
 
 /** Get the RFCOMM channel for a given device */
-- (int) getRFCOMMChannelID: (NSString *) address
+- (int) getRFCOMMChannelID: (NSString *) address withUUID:(NSString *)uuid
 {
-	[sdpLock lock];
-	// call the task on the worker thread and wait for the result
-	[self performSelector:@selector(getRFCOMMChannelIDTask:) onThread:worker withObject:address waitUntilDone:true];
-	int returnValue = lastChannelID;
-	[sdpLock unlock];
-	return returnValue;
+  [sdpLock lock];
+  preferredUuids = [NSArray arrayWithObject:[IOBluetoothSDPUUID uuidWithData:[self dataWithString:uuid]]];
+  // call the task on the worker thread and wait for the result
+  [self performSelector:@selector(getRFCOMMChannelIDTask:) onThread:worker withObject:address waitUntilDone:true];
+  int returnValue = lastChannelID;
+  [sdpLock unlock];
+  return returnValue;
 }
 
 /** Task to get the RFCOMM channel */
 - (void) getRFCOMMChannelIDTask: (NSString *) address
 {
     IOBluetoothDevice *device = [IOBluetoothDevice deviceWithAddressString:address];
-    IOBluetoothSDPUUID *uuid = [[IOBluetoothSDPUUID alloc] initWithUUID16:RFCOMM_UUID];
-    NSArray *uuids = [NSArray arrayWithObject:uuid];
 
     // always perform a new SDP query
     NSDate *lastServicesUpdate = [device getLastServicesUpdate];
     NSDate *currentServiceUpdate = NULL;
 
     // only search for the UUIDs we are going to need...
-    [device performSDPQuery: NULL uuids: uuids];
+    [device performSDPQuery: NULL uuids: preferredUuids];
 
     bool stop = false;
 
@@ -317,10 +312,10 @@ using namespace v8;
 
     // if there are services check if it is the one we are looking for.
     if (services != NULL) {
-        for (NSUInteger i=0; i<[services count]; i++) {
+        for (NSUInteger i = 0; i < [services count]; i++) {
             IOBluetoothSDPServiceRecord *sr = [services objectAtIndex: i];
 
-            if ([sr hasServiceFromArray: uuids]) {
+            if ([sr hasServiceFromArray: preferredUuids]) {
                 BluetoothRFCOMMChannelID cid = -1;
                 if ([sr getRFCOMMChannelID: &cid] == kIOReturnSuccess) {
                 	lastChannelID = cid;
@@ -388,6 +383,23 @@ using namespace v8;
 			delete info;
 		}
 	}
+}
+
+- (NSData *)dataWithString:(NSString *)string
+{
+    NSMutableData *data= [[NSMutableData alloc] init];
+
+    for (unsigned int i = 0; i < [string length] / 2; i++) {
+        char chars[3] = { 0x00, 0x00, 0x00 };
+        chars[0] = [string characterAtIndex:(i * 2)];
+        chars[1] = [string characterAtIndex:(i * 2 + 1)];
+
+        unsigned char bytes = strtol(chars, NULL, 16);
+
+        [data appendBytes:&bytes length:1];
+    }
+
+    return data;
 }
 
 @end
