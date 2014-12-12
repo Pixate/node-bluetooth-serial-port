@@ -47,10 +47,10 @@ class DeviceINQ : public node::ObjectWrap {
         DeviceINQ();
         ~DeviceINQ();
 
-        static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
-        static v8::Handle<v8::Value> Inquire(const v8::FunctionCallbackInfo<v8::Value>& args);
-        static v8::Handle<v8::Value> SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& args);
-        static v8::Handle<v8::Value> ListPairedDevices(const v8::FunctionCallbackInfo<v8::Value>& args);
+        static NAN_METHOD(New);
+        static NAN_METHOD(Inquire);
+        static NAN_METHOD(SdpSearch);
+        static NAN_METHOD(ListPairedDevices);
 };
 
 #endif

@@ -118,7 +118,7 @@ DeviceINQ::~DeviceINQ() {
 
 }
 
-Handle<Value> DeviceINQ::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DeviceINQ::New) {
     NanScope();
 
     const char *usage = "usage: DeviceINQ()";
@@ -132,7 +132,7 @@ Handle<Value> DeviceINQ::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     return args.This();
 }
 
-Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DeviceINQ::Inquire) {
     NanScope();
 
     const char *usage = "usage: inquire()";
@@ -177,10 +177,10 @@ Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args
     NanMakeCallback(args.This(), "emit", 1, argv);
 
     [pool release];
-    return NanUndefined();
+    NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DeviceINQ::SdpSearch) {
     NanScope();
 
     const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
@@ -216,10 +216,10 @@ Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& ar
 
     uv_queue_work(uv_default_loop(), &baton->request, EIO_SdpSearch, (uv_after_work_cb)EIO_AfterSdpSearch);
 
-    return NanUndefined();
+    NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Value>& args) {
+NAN_METHOD(DeviceINQ::ListPairedDevices) {
     NanScope();
 
     const char *usage = "usage: listPairedDevices(callback)";
@@ -278,5 +278,5 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
     };
     cb->Call(NanGetCurrentContext()->Global(), 1, argv);
 
-    return NanUndefined();
+    NanReturnUndefined();
 }
