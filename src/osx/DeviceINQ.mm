@@ -177,7 +177,7 @@ Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args
     MakeCallback(args.This(), "emit", 1, argv);
 
     [pool release];
-    NanReturnUndefined();
+    return NanUndefined();
 }
 
 Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -216,7 +216,7 @@ Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& ar
 
     uv_queue_work(uv_default_loop(), &baton->request, EIO_SdpSearch, (uv_after_work_cb)EIO_AfterSdpSearch);
 
-    NanReturnUndefined();
+    return NanUndefined();
 }
 
 Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Value>& args) {
@@ -234,7 +234,7 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
 
     NSArray *pairedDevices = [IOBluetoothDevice pairedDevices];
 
-    Local<Array> resultArray = Array::New((int)pairedDevices.count);
+    Local<Array> resultArray = NanNew<v8::Array>((int)pairedDevices.count);
 
     // Builds an array of objects representing a paired device:
     // ex: {
@@ -248,10 +248,10 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
     for (int i = 0; i < (int)pairedDevices.count; ++i) {
         IOBluetoothDevice *device = [pairedDevices objectAtIndex:i];
 
-        Local<Object> deviceObj = Object::New();
+        Local<Object> deviceObj = NanNew<v8::Object>();
 
-        deviceObj->Set(NanNew("name"), String::New([device.nameOrAddress UTF8String]));
-        deviceObj->Set(NanNew("address"), String::New([device.addressString UTF8String]));
+        deviceObj->Set(NanNew("name"), NanNew([device.nameOrAddress UTF8String]));
+        deviceObj->Set(NanNew("address"), NanNew([device.addressString UTF8String]));
 
         // A device may have multiple services, so enumerate each one
         Local<Array> servicesArray =  Array::New((int)device.services.count);
@@ -276,5 +276,5 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
     };
     cb->Call(Context::GetCurrent()->Global(), 1, argv);
 
-    NanReturnUndefined();
+    return NanUndefined();
 }
