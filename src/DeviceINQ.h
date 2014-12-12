@@ -12,6 +12,7 @@
 #ifndef NODE_BTSP_SRC_DEVICE_INQ_H
 #define NODE_BTSP_SRC_DEVICE_INQ_H
 
+#include <uv.h>
 #include <node.h>
 
 class DeviceINQ : public node::ObjectWrap {
@@ -46,10 +47,10 @@ class DeviceINQ : public node::ObjectWrap {
         DeviceINQ();
         ~DeviceINQ();
 
-        static v8::Handle<v8::Value> New(const v8::Arguments& args);
-        static v8::Handle<v8::Value> Inquire(const v8::Arguments& args);
-        static v8::Handle<v8::Value> SdpSearch(const v8::Arguments& args);
-        static v8::Handle<v8::Value> ListPairedDevices(const v8::Arguments& args);
+        static v8::Handle<v8::Value> New(const v8::internal::Arguments& args);
+        static v8::Handle<v8::Value> Inquire(const v8::internal::Arguments& args);
+        static v8::Handle<v8::Value> SdpSearch(const v8::internal::Arguments& args);
+        static v8::Handle<v8::Value> ListPairedDevices(const v8::internal::Arguments& args);
 };
 
 #endif
