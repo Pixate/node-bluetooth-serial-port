@@ -82,20 +82,20 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
 
     Local<Value> argv[1];
     argv[0] = NanNew(baton->channelID);
-    baton->cb->Call(Context::GetCurrent()->Global(), 1, argv);
+    baton->cb.As<v8::Function>().Call(v8::Isolate::GetCurrent()->GetCurrentContext()->Global(), 1, argv);
 
     if (try_catch.HasCaught()) {
         FatalException(try_catch);
     }
 
     baton->inquire->Unref();
-    baton->cb.Dispose();
+    baton->cb.Reset();
     delete baton;
     baton = NULL;
 }
 
 void DeviceINQ::Init(Handle<Object> target) {
-    HandleScope scope;
+    NanScope();
 
     Local<FunctionTemplate> t = NanNew<FunctionTemplate>(New);
 
@@ -119,7 +119,7 @@ DeviceINQ::~DeviceINQ() {
 }
 
 Handle<Value> DeviceINQ::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
-    HandleScope scope;
+    NanScope();
 
     const char *usage = "usage: DeviceINQ()";
     if (args.Length() != 0) {
@@ -133,7 +133,7 @@ Handle<Value> DeviceINQ::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
 }
 
 Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args) {
-    HandleScope scope;
+    NanScope();
 
     const char *usage = "usage: inquire()";
     if (args.Length() != 0) {
@@ -181,7 +181,7 @@ Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args
 }
 
 Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& args) {
-    HandleScope scope;
+    NanScope();
 
     const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
     if (args.Length() != 3) {
@@ -220,7 +220,7 @@ Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& ar
 }
 
 Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Value>& args) {
-    HandleScope scope;
+    NanScope();
 
     const char *usage = "usage: listPairedDevices(callback)";
     if (args.Length() != 1) {
