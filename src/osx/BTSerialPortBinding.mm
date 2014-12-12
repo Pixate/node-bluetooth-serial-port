@@ -180,7 +180,7 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
     } else {
         Local<Object> globalObj = Context::GetCurrent()->Global();
         Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
-        Handle<Value> constructorArgs[1] = { Integer::New(baton->size) };
+        Handle<Value> constructorArgs[1] = { NanNew<v8::Integer>(baton->size) };
         Local<Object> resultBuffer = bufferConstructor->NewInstance(1, constructorArgs);
         memcpy(Buffer::Data(resultBuffer), baton->result, baton->size);
 
