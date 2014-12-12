@@ -171,13 +171,13 @@ Handle<Value> DeviceINQ::Inquire(const internal::Arguments& args) {
     pipe_consumer_free(c);
 
     Local<Value> argv[1] = {
-        String::New("finished")
+        NanNew("finished")
     };
 
     MakeCallback(args.This(), "emit", 1, argv);
 
     [pool release];
-    return Undefined();
+    NanReturnUndefined();
 }
 
 Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
@@ -216,7 +216,7 @@ Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
 
     uv_queue_work(uv_default_loop(), &baton->request, EIO_SdpSearch, (uv_after_work_cb)EIO_AfterSdpSearch);
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
 Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
@@ -250,8 +250,8 @@ Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
 
         Local<Object> deviceObj = Object::New();
 
-        deviceObj->Set(String::NewSymbol("name"), String::New([device.nameOrAddress UTF8String]));
-        deviceObj->Set(String::NewSymbol("address"), String::New([device.addressString UTF8String]));
+        deviceObj->Set(NanNew("name"), String::New([device.nameOrAddress UTF8String]));
+        deviceObj->Set(NanNew("address"), String::New([device.addressString UTF8String]));
 
         // A device may have multiple services, so enumerate each one
         Local<Array> servicesArray =  Array::New((int)device.services.count);
@@ -263,7 +263,7 @@ Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
             Local<Object> serviceObj = Object::New();
             serviceObj->Set(String::NewSymbol("channel"), Int32::New((int)channelID));
             serviceObj->Set(String::NewSymbol("name"), [service getServiceName] ?
-                String::New([[service getServiceName] UTF8String]) : Undefined());
+                String::New([[service getServiceName] UTF8String]) : NanUndefined());
             servicesArray->Set(j, serviceObj);
         }
         deviceObj->Set(String::NewSymbol("services"), servicesArray);
@@ -276,5 +276,5 @@ Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
     };
     cb->Call(Context::GetCurrent()->Global(), 1, argv);
 
-    return scope.Close(Undefined());
+    NanReturnUndefined();
 }
