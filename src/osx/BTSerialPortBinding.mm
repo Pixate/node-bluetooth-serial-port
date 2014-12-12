@@ -272,9 +272,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     if(!args[0]->IsObject() || !Buffer::HasInstance(args[0])) {
         return NanThrowTypeError("First argument must be a buffer");
     }
-    Persistent<Object> buffer;
     Local<Object> bufferObject = args[0].As<Object>();
-    NanAssignPersistent(buffer, bufferObject);
     void* bufferData = Buffer::Data(bufferObject);
     size_t bufferLength = Buffer::Length(bufferObject);
 
@@ -294,7 +292,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     strcpy(baton->address, *addressParameter);
     baton->rfcomm = ObjectWrap::Unwrap<BTSerialPortBinding>(args.This());
     baton->rfcomm->Ref();
-    baton->buffer = buffer;
+    NanAssignPersistent(baton->buffer, bufferObject);
     baton->bufferData = bufferData;
     baton->bufferLength = bufferLength;
     baton->callback = new NanCallback(args[2].As<v8::Function>());
