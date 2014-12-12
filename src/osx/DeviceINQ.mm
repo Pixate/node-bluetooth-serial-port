@@ -163,7 +163,7 @@ Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args
                 NanNew(info->name)
             };
 
-            MakeCallback(args.This(), "emit", 3, argv);
+            NanMakeCallback(args.This(), "emit", 3, argv);
         }
     } while (result != 0);
 
@@ -174,7 +174,7 @@ Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args
         NanNew("finished")
     };
 
-    MakeCallback(args.This(), "emit", 1, argv);
+    NanMakeCallback(args.This(), "emit", 1, argv);
 
     [pool release];
     return NanUndefined();
