@@ -179,7 +179,7 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
         argv[0] = NanError("Error reading from connection");
         argv[1] = NanUndefined();
     } else {
-        Local<Object> globalObj = Context::GetCurrent()->Global();
+        Local<Object> globalObj = NanGetCurrentContext()->Global();
         Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
         Handle<Value> constructorArgs[1] = { NanNew<v8::Integer>(baton->size) };
         Local<Object> resultBuffer = bufferConstructor->NewInstance(1, constructorArgs);
@@ -204,7 +204,7 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
 void BTSerialPortBinding::Init(Handle<Object> target) {
     NanScope();
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = NanNew<FunctionTemplate>(New);
 
     t->InstanceTemplate()->SetInternalFieldCount(1);
     t->SetClassName(NanNew("BTSerialPortBinding"));
@@ -357,7 +357,7 @@ NAN_METHOD(BTSerialPortBinding::Read) {
 
     read_baton_t *baton = new read_baton_t();
     baton->rfcomm = rfcomm;
-    baton->cb = Persistent<Function>::New(cb);
+    baton->cb = new NanCallback(cb);
     baton->request.data = baton;
     baton->rfcomm->Ref();
 
