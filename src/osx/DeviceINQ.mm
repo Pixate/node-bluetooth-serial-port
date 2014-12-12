@@ -208,7 +208,6 @@ NAN_METHOD(DeviceINQ::SdpSearch) {
 
     sdp_baton_t *baton = new sdp_baton_t();
     baton->inquire = inquire;
-    delete baton->cb;
     baton->cb = new NanCallback(cb);
     strcpy(baton->address, *address);
     strcpy(baton->uuid, *uuid);
