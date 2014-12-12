@@ -118,7 +118,7 @@ DeviceINQ::~DeviceINQ() {
 
 }
 
-Handle<Value> DeviceINQ::New(const internal::Arguments& args) {
+Handle<Value> DeviceINQ::New(const v8::FunctionCallbackInfo<v8::Value>& args) {
     HandleScope scope;
 
     const char *usage = "usage: DeviceINQ()";
@@ -132,7 +132,7 @@ Handle<Value> DeviceINQ::New(const internal::Arguments& args) {
     return args.This();
 }
 
-Handle<Value> DeviceINQ::Inquire(const internal::Arguments& args) {
+Handle<Value> DeviceINQ::Inquire(const v8::FunctionCallbackInfo<v8::Value>& args) {
     HandleScope scope;
 
     const char *usage = "usage: inquire()";
@@ -180,7 +180,7 @@ Handle<Value> DeviceINQ::Inquire(const internal::Arguments& args) {
     NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::SdpSearch(const internal::Arguments& args) {
+Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& args) {
     HandleScope scope;
 
     const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
@@ -219,7 +219,7 @@ Handle<Value> DeviceINQ::SdpSearch(const internal::Arguments& args) {
     NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::ListPairedDevices(const internal::Arguments& args) {
+Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Value>& args) {
     HandleScope scope;
 
     const char *usage = "usage: listPairedDevices(callback)";
