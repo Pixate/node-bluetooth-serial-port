@@ -11,7 +11,7 @@
             'src/linux/DeviceINQ.cc',
             'src/linux/BTSerialPortBinding.cc'
           ],
-          'include_dirs' : [ 'src' ],
+          'include_dirs' : [ "<!(node -e \"require('nan')\")", 'src' ],
           'libraries': ['-lbluetooth'],
           'cflags':['-std=gnu++0x']
         }],
@@ -24,7 +24,7 @@
             'src/osx/BluetoothSerialPort.mm',
             'src/osx/BTSerialPortBinding.mm'
           ],
-          'include_dirs' : [ 'src', 'src/osx' ],
+          'include_dirs' : [ "<!(node -e \"require('nan')\")", 'src', 'src/osx' ],
           'libraries':['-framework Foundation', '-framework IOBluetooth', '-fobjc-arc'],
           'cflags!': [ '-fno-exceptions' ],
           'cflags_cc!': [ '-fno-exceptions' ],
@@ -37,7 +37,7 @@
             'src/windows/BTSerialPortBinding.cc',
             'src/windows/BluetoothHelpers.cc'
           ],
-          'include_dirs' : [ 'src', 'src/windows' ],
+          'include_dirs' : [ "<!(node -e \"require('nan')\")", 'src', 'src/windows' ],
           'libraries': [ '-lkernel32.lib', '-luser32.lib', '-lWs2_32.lib' ]
         }],
       ]
@@ -45,4 +45,3 @@
 
   ] # end targets
 }
-
