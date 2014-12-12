@@ -88,6 +88,7 @@ void BTSerialPortBinding::EIO_AfterConnect(uv_work_t *req) {
 
     baton->rfcomm->Unref();
     delete baton->cb;
+    delete baton->ecb;
     delete baton;
     baton = NULL;
 }
@@ -188,14 +189,14 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
         argv[1] = scope.Close(resultBuffer);
     }
 
-    baton->cb->Call(Context::GetCurrent()->Global(), 2, argv);
+    baton->cb->Call(2, argv);
 
     if (try_catch.HasCaught()) {
         FatalException(try_catch);
     }
 
     baton->rfcomm->Unref();
-    baton->cb.Dispose();
+    delete baton->cb;
     delete baton;
     baton = NULL;
 }
@@ -252,8 +253,8 @@ NAN_METHOD(BTSerialPortBinding::New) {
     baton->channelID = channelID;
 
     strcpy(baton->address, *address);
-    baton->cb = Persistent<Function>::New(cb);
-    baton->ecb = Persistent<Function>::New(ecb);
+    baton->cb = NanCallback(cb);
+    baton->ecb = NanCallback(ecb);
     baton->request.data = baton;
     baton->rfcomm->Ref();
 

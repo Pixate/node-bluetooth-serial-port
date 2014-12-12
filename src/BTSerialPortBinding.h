@@ -59,7 +59,7 @@ class BTSerialPortBinding : public node::ObjectWrap {
         struct read_baton_t {
             BTSerialPortBinding *rfcomm;
             uv_work_t request;
-            v8::Persistent<v8::Function> cb;
+            NanCallback* cb;
 #ifdef _WINDOWS_
             unsigned char result[1024];
 #else
