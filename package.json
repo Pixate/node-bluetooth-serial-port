@@ -1,36 +1,48 @@
-{ "name" : "bluetooth-serial-port"
-, "version" : "1.1.5"
-, "description" : "Bluetooth serial port communication for Node.js"
-, "author": "Eelco Cramer <eelco@hailendal.org>"
-, "keywords" :
-  [ "bluetooth"
-  , "serial port"
-  , "rfcomm"
-  , "linux"
-  , "os x"
-  , "windows"
+{
+  "name": "bluetooth-serial-port",
+  "version": "1.1.5",
+  "description": "Bluetooth serial port communication for Node.js",
+  "author": "Eelco Cramer <eelco@hailendal.org>",
+  "keywords": [
+    "bluetooth",
+    "serial port",
+    "rfcomm",
+    "linux",
+    "os x",
+    "windows"
+  ],
+  "homepage": "https://github.com/eelcocramer/node-bluetooth-serial-port",
+  "bugs": "https://github.com/eelcocramer/node-bluetooth-serial-port/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eelcocramer/node-bluetooth-serial-port"
+  },
+  "directories": {
+    "lib": "./lib"
+  },
+  "main": "./lib/bluetooth-serial-port.js",
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "dependencies": {
+    "bindings": "1.1.x",
+    "nan": "^1.4.1"
+  },
+  "engines": {
+    "node": ">= 0.8.x",
+    "npm": ">= 1.1.x"
+  },
+  "scripts": {
+    "install": "node-gyp configure build"
+  },
+  "license": "BSD-2-Clause",
+  "contributors": [
+    "Eric Smekens",
+    "Juho Vepsäläinen",
+    "Elmar Langholz",
+    "Donald Ness",
+    "Joost Verdoorn"
   ]
-, "homepage" : "https://github.com/eelcocramer/node-bluetooth-serial-port"
-, "bugs" : "https://github.com/eelcocramer/node-bluetooth-serial-port/issues"
-, "repository" :
-  { "type" : "git"
-  , "url" : "https://github.com/eelcocramer/node-bluetooth-serial-port"
-  }
-, "directories" :
-  { "lib" : "./lib"
-  }
-, "main" : "./lib/bluetooth-serial-port.js"
-, "os": [ "darwin", "linux", "win32" ]
-, "dependencies" :
-  { "bindings" : "1.1.x"
-  }
-, "engines" :
-  { "node" : ">= 0.8.x"
-  , "npm" : ">= 1.1.x"
-  }
-, "scripts":
-  { "install": "node-gyp configure build"
-  }
-, "license": "BSD-2-Clause"
-, "contributors": ["Eric Smekens", "Juho Vepsäläinen", "Elmar Langholz", "Donald Ness", "Joost Verdoorn"]
 }

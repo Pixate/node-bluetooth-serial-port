@@ -25,6 +25,7 @@
 
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 #include <string.h>
 #include <vector>
 #include <stdlib.h>
@@ -80,7 +81,7 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
     TryCatch try_catch;
 
     Local<Value> argv[1];
-    argv[0] = Integer::New(baton->channelID);
+    argv[0] = NanNew(baton->channelID);
     baton->cb->Call(Context::GetCurrent()->Global(), 1, argv);
 
     if (try_catch.HasCaught()) {
@@ -99,14 +100,14 @@ void DeviceINQ::Init(Handle<Object> target) {
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
     t->InstanceTemplate()->SetInternalFieldCount(1);
-    t->SetClassName(String::NewSymbol("DeviceINQ"));
+    t->SetClassName(NanNew("DeviceINQ"));
 
     NODE_SET_PROTOTYPE_METHOD(t, "inquire", Inquire);
     NODE_SET_PROTOTYPE_METHOD(t, "findSerialPortChannel", SdpSearch);
     NODE_SET_PROTOTYPE_METHOD(t, "listPairedDevices", ListPairedDevices);
-    target->Set(String::NewSymbol("DeviceINQ"), t->GetFunction());
-    target->Set(String::NewSymbol("DeviceINQ"), t->GetFunction());
-    target->Set(String::NewSymbol("DeviceINQ"), t->GetFunction());
+    target->Set(NanNew("DeviceINQ"), t->GetFunction());
+    target->Set(NanNew("DeviceINQ"), t->GetFunction());
+    target->Set(NanNew("DeviceINQ"), t->GetFunction());
 }
 
 DeviceINQ::DeviceINQ() {
@@ -122,7 +123,7 @@ Handle<Value> DeviceINQ::New(const Arguments& args) {
 
     const char *usage = "usage: DeviceINQ()";
     if (args.Length() != 0) {
-        return scope.Close(ThrowException(Exception::Error(String::New(usage))));
+        NanThrowError(usage);
     }
 
     DeviceINQ* inquire = new DeviceINQ();
@@ -131,12 +132,12 @@ Handle<Value> DeviceINQ::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> DeviceINQ::Inquire(const Arguments& args) {
+Handle<Value> DeviceINQ::Inquire(const internal::Arguments& args) {
     HandleScope scope;
 
     const char *usage = "usage: inquire()";
     if (args.Length() != 0) {
-        return scope.Close(ThrowException(Exception::Error(String::New(usage))));
+        NanThrowError(usage);
     }
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -157,9 +158,9 @@ Handle<Value> DeviceINQ::Inquire(const Arguments& args) {
 
         if (result != 0) {
             Local<Value> argv[3] = {
-                String::New("found"),
-                String::New(info->address),
-                String::New(info->name)
+                NanNew("found"),
+                NanNew(info->address),
+                NanNew(info->name)
             };
 
             MakeCallback(args.This(), "emit", 3, argv);
@@ -184,21 +185,21 @@ Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
 
     const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
     if (args.Length() != 3) {
-        return scope.Close(ThrowException(Exception::Error(String::New(usage))));
+        NanThrowError(usage);
     }
 
     if (!args[0] -> IsString()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("First argument should be a string value"))));
+        NanThrowError("First argument should be a string value");
     }
     String::Utf8Value address(args[0]);
 
     if (!args[1] -> IsString()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Second argument should be a string value"))));
+        NanThrowError("Second argument should be a string value");
     }
     String::Utf8Value uuid(args[1]);
 
     if (!args[2] -> IsFunction()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Third argument must be a function"))));
+        NanThrowError("Third argument must be a function");
     }
     Local<Function> cb = Local<Function>::Cast(args[2]);
 
@@ -223,11 +224,11 @@ Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
 
     const char *usage = "usage: listPairedDevices(callback)";
     if (args.Length() != 1) {
-        return scope.Close(ThrowException(Exception::Error(String::New(usage))));
+        NanThrowError(usage);
     }
 
     if(!args[0]->IsFunction()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("First argument must be a function"))));
+        NanThrowError("First argument must be a function");
     }
     Local<Function> cb = Local<Function>::Cast(args[0]);
 
