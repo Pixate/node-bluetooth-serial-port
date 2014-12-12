@@ -14,6 +14,7 @@
 
 #include <uv.h>
 #include <node.h>
+#include <nan.h>
 
 class DeviceINQ : public node::ObjectWrap {
     private:
