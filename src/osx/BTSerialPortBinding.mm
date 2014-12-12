@@ -179,12 +179,12 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
         argv[1] = NanUndefined();
     } else {
         Local<Object> globalObj = Context::GetCurrent()->Global();
-        Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
+        Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(NanNew("Buffer")));
         Handle<Value> constructorArgs[1] = { Integer::New(baton->size) };
         Local<Object> resultBuffer = bufferConstructor->NewInstance(1, constructorArgs);
         memcpy(Buffer::Data(resultBuffer), baton->result, baton->size);
 
-        argv[0] = Undefined();
+        argv[0] = NanUndefined();
         argv[1] = scope.Close(resultBuffer);
     }
 
@@ -206,7 +206,7 @@ void BTSerialPortBinding::Init(Handle<Object> target) {
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
     t->InstanceTemplate()->SetInternalFieldCount(1);
-    t->SetClassName(String::NewSymbol("BTSerialPortBinding"));
+    t->SetClassName(NanNew("BTSerialPortBinding"));
 
     NODE_SET_PROTOTYPE_METHOD(t, "write", Write);
     NODE_SET_PROTOTYPE_METHOD(t, "read", Read);
@@ -223,7 +223,7 @@ BTSerialPortBinding::BTSerialPortBinding() :
 BTSerialPortBinding::~BTSerialPortBinding() {
 }
 
-Handle<Value> BTSerialPortBinding::New(const Arguments& args) {
+NAN_METHOD(BTSerialPortBinding::New) {
     NanScope();
 
     uv_mutex_init(&write_queue_mutex);
@@ -231,14 +231,14 @@ Handle<Value> BTSerialPortBinding::New(const Arguments& args) {
 
     const char *usage = "usage: BTSerialPortBinding(address, channelID, callback, error)";
     if (args.Length() != 4) {
-        return scope.Close(ThrowException(Exception::Error(String::New(usage))));
+        return NanThrowError(usage);
     }
 
     String::Utf8Value address(args[0]);
 
     int channelID = args[1]->Int32Value();
     if (channelID <= 0) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("ChannelID should be a positive int value."))));
+        return NanThrowTypeError("ChannelID should be a positive int value.");
     }
 
     Local<Function> cb = Local<Function>::Cast(args[2]);
@@ -259,7 +259,7 @@ Handle<Value> BTSerialPortBinding::New(const Arguments& args) {
 
     uv_queue_work(uv_default_loop(), &baton->request, EIO_Connect, (uv_after_work_cb)EIO_AfterConnect);
 
-    return args.This();
+    NanReturnValue(args.This());
 }
 
 NAN_METHOD(BTSerialPortBinding::Write) {
@@ -267,12 +267,12 @@ NAN_METHOD(BTSerialPortBinding::Write) {
 
     // usage
     if (args.Length() != 3) {
-        return scope.Close(ThrowException(Exception::Error(String::New("usage: write(buf, address, callback)"))));
+        return NanThrowError("usage: write(buf, address, callback)");
     }
 
     // buffer
     if(!args[0]->IsObject() || !Buffer::HasInstance(args[0])) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("First argument must be a buffer"))));
+        return NanThrowTypeError("First argument must be a buffer");
     }
     Persistent<Object> buffer = Persistent<Object>::New(args[0]->ToObject());
     void* bufferData = Buffer::Data(buffer);
@@ -280,13 +280,13 @@ NAN_METHOD(BTSerialPortBinding::Write) {
 
     // string
     if (!args[1]->IsString()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Second argument must be a string"))));
+        return NanThrowTypeError("Second argument must be a string");
     }
     String::Utf8Value addressParameter(args[1]);
 
     // callback
     if(!args[2]->IsFunction()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Third argument must be a function"))));
+        return NanThrowTypeError("Third argument must be a function");
     }
     v8::Local<v8::Value> callback = args[2];
 
@@ -322,11 +322,11 @@ NAN_METHOD(BTSerialPortBinding::Close) {
     NanScope();
 
     if (args.Length() != 1) {
-        return scope.Close(ThrowException(Exception::Error(String::New("usage: close(address)"))));
+        return NanThrowError("usage: close(address)");
     }
 
     if (!args[0]->IsString()) {
-        return scope.Close(ThrowException(Exception::TypeError(String::New("Argument should be a string value"))));
+        return NanThrowError("Argument should be a string value")s;
     }
 
     //TODO should be a better way to do this...
@@ -345,7 +345,7 @@ NAN_METHOD(BTSerialPortBinding::Read) {
     NanScope();
 
     if (args.Length() != 1) {
-        return scope.Close(ThrowException(Exception::Error(String::New("usage: read(callback)"))));
+        return NanThrowError("usage: read(callback)");
     }
 
     Local<Function> cb = Local<Function>::Cast(args[0]);
@@ -353,7 +353,7 @@ NAN_METHOD(BTSerialPortBinding::Read) {
     BTSerialPortBinding* rfcomm = ObjectWrap::Unwrap<BTSerialPortBinding>(args.This());
 
     if (rfcomm->consumer == NULL) {
-        return scope.Close(ThrowException(Exception::Error(String::New("connection has been closed"))));
+        return NanThrowError("connection has been closed");
     }
 
     read_baton_t *baton = new read_baton_t();
