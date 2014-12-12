@@ -260,7 +260,7 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
             BluetoothRFCOMMChannelID channelID;
             [service getRFCOMMChannelID:&channelID];
 
-            Local<Object> serviceObj = Object::New();
+            Local<Object> serviceObj = NanNew<v8::Object>();
             serviceObj->Set(NanNew("channel"), NanNew((int)channelID));
             if ([service getServiceName])
               serviceObj->Set(NanNew("name"), NanNew([[service getServiceName] UTF8String]));
