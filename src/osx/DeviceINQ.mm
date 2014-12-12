@@ -202,7 +202,7 @@ NAN_METHOD(DeviceINQ::SdpSearch) {
     if (!args[2] -> IsFunction()) {
         NanThrowError("Third argument must be a function");
     }
-    Local<Function> cb = Local<Function>::Cast(args[2]);
+    Local<Function> cb = args[2].As<Function>();
 
     DeviceINQ* inquire = ObjectWrap::Unwrap<DeviceINQ>(args.This());
 
@@ -231,7 +231,7 @@ NAN_METHOD(DeviceINQ::ListPairedDevices) {
     if(!args[0]->IsFunction()) {
         NanThrowError("First argument must be a function");
     }
-    Local<Function> cb = Local<Function>::Cast(args[0]);
+    Local<Function> cb = args[0].As<Function>();
 
     NSArray *pairedDevices = [IOBluetoothDevice pairedDevices];
 
