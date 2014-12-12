@@ -136,8 +136,8 @@ void BTSerialPortBinding::EIO_AfterWrite(uv_work_t *req) {
     }
     uv_mutex_unlock(&write_queue_mutex);
 
-    data->buffer.Dispose();
-    data->callback.Dispose();
+    NanDisposePersistent(data->buffer);
+    delete data->callback;
     data->rfcomm->Unref();
 
     delete data;
@@ -301,7 +301,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     baton->buffer = buffer;
     baton->bufferData = bufferData;
     baton->bufferLength = bufferLength;
-    baton->callback = v8::Persistent<v8::Value>::New(callback);
+    baton->callback = NanCallback(callback);
 
     queued_write_t *queuedWrite = new queued_write_t();
     memset(queuedWrite, 0, sizeof(queued_write_t));

@@ -75,7 +75,7 @@ class BTSerialPortBinding : public node::ObjectWrap {
             void* bufferData;
             int bufferLength;
             v8::Persistent<v8::Object> buffer;
-            v8::Persistent<v8::Value> callback;
+            NanCallback* callback;
             size_t result;
             char errorString[1024];
         };
