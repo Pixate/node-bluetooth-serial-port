@@ -123,7 +123,7 @@ void BTSerialPortBinding::EIO_AfterWrite(uv_work_t *req) {
         argv[1] = NanNew<v8::Int32>(data->result);
     }
 
-    Function::Cast(*data->callback)->Call(Context::GetCurrent()->Global(), 2, argv);
+    data->callback->Call(2, argv);
 
     uv_mutex_lock(&write_queue_mutex);
     ngx_queue_remove(&queuedWrite->queue);
@@ -167,7 +167,7 @@ void BTSerialPortBinding::EIO_Read(uv_work_t *req) {
 }
 
 void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
-    NanScope();
+    NanEscapableScope();
 
     read_baton_t *baton = static_cast<read_baton_t *>(req->data);
 
@@ -186,7 +186,7 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
         memcpy(Buffer::Data(resultBuffer), baton->result, baton->size);
 
         argv[0] = NanUndefined();
-        argv[1] = scope.Close(resultBuffer);
+        argv[1] = NanEscapeScope(resultBuffer);
     }
 
     baton->cb->Call(2, argv);
@@ -250,8 +250,8 @@ NAN_METHOD(BTSerialPortBinding::New) {
     baton->channelID = channelID;
 
     strcpy(baton->address, *address);
-    baton->cb = NanCallback(args[2].As<v8::Function>());
-    baton->ecb = NanCallback(args[3].As<v8::Function>());
+    baton->cb = new NanCallback(args[2].As<v8::Function>());
+    baton->ecb = new NanCallback(args[3].As<v8::Function>());
     baton->request.data = baton;
     baton->rfcomm->Ref();
 
@@ -297,7 +297,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     baton->buffer = buffer;
     baton->bufferData = bufferData;
     baton->bufferLength = bufferLength;
-    baton->callback = NanCallback(args[2].As<v8::Function>());
+    baton->callback = new NanCallback(args[2].As<v8::Function>());
 
     queued_write_t *queuedWrite = new queued_write_t();
     memset(queuedWrite, 0, sizeof(queued_write_t));
