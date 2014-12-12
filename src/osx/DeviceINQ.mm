@@ -82,7 +82,7 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
 
     Local<Value> argv[1];
     argv[0] = NanNew(baton->channelID);
-    baton->cb.As<v8::Function>().Call(v8::Isolate::GetCurrent()->GetCurrentContext()->Global(), 1, argv);
+    baton->cb.As<v8::Function>().Call(NanGetCurrentContext()->Global(), 1, argv);
 
     if (try_catch.HasCaught()) {
         FatalException(try_catch);
@@ -276,7 +276,7 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
     Local<Value> argv[1] = {
         resultArray
     };
-    cb->Call(Context::GetCurrent()->Global(), 1, argv);
+    cb->Call(NanGetCurrentContext()->Global(), 1, argv);
 
     return NanUndefined();
 }
