@@ -74,11 +74,12 @@ void BTSerialPortBinding::EIO_AfterConnect(uv_work_t *req) {
     TryCatch try_catch;
 
     if (baton->status == 0) {
-        baton->cb->Call(Context::GetCurrent()->Global(), 0, NULL);
+        baton->cb->Call(0, NULL);
     } else {
-        Local<Value> argv[1];
-        argv[0] = Exception::Error(String::New("Cannot connect"));
-        baton->ecb->Call(Context::GetCurrent()->Global(), 1, argv);
+        Handle<Value> argv[] = {
+          NanError("Cannot connect")
+        };
+        baton->ecb->Call(1, argv);
     }
 
     if (try_catch.HasCaught()) {
@@ -86,8 +87,7 @@ void BTSerialPortBinding::EIO_AfterConnect(uv_work_t *req) {
     }
 
     baton->rfcomm->Unref();
-    baton->cb.Dispose();
-
+    delete baton->cb;
     delete baton;
     baton = NULL;
 }

@@ -49,8 +49,8 @@ class BTSerialPortBinding : public node::ObjectWrap {
         struct connect_baton_t {
             BTSerialPortBinding *rfcomm;
             uv_work_t request;
-            v8::Persistent<v8::Function> cb;
-            v8::Persistent<v8::Function> ecb;
+            NanCallback* cb;
+            NanCallback* ecb;
             char address[40];
             int status;
             int channelID;
