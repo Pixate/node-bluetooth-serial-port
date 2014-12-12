@@ -207,7 +207,7 @@ Handle<Value> DeviceINQ::SdpSearch(const v8::FunctionCallbackInfo<v8::Value>& ar
 
     sdp_baton_t *baton = new sdp_baton_t();
     baton->inquire = inquire;
-    baton->cb = Persistent<Function>::New(cb);
+    baton->cb = NanNew(cb);
     strcpy(baton->address, *address);
     strcpy(baton->uuid, *uuid);
     baton->channelID = -1;
