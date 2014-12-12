@@ -115,11 +115,11 @@ void BTSerialPortBinding::EIO_AfterWrite(uv_work_t *req) {
 
     Handle<Value> argv[2];
     if (data->errorString[0]) {
-        argv[0] = Exception::Error(String::New(data->errorString));
-        argv[1] = Undefined();
+        argv[0] = NanError(data->errorString);
+        argv[1] = NanUndefined();
     } else {
-        argv[0] = Undefined();
-        argv[1] = v8::Int32::New(data->result);
+        argv[0] = NanUndefined();
+        argv[1] = NanNew<v8::Int32>(data->result);
     }
 
     Function::Cast(*data->callback)->Call(Context::GetCurrent()->Global(), 2, argv);
@@ -166,7 +166,7 @@ void BTSerialPortBinding::EIO_Read(uv_work_t *req) {
 }
 
 void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
-    HandleScope scope;
+    NanScope();
 
     read_baton_t *baton = static_cast<read_baton_t *>(req->data);
 
@@ -175,8 +175,8 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
     Handle<Value> argv[2];
 
     if (baton->size < 0) {
-        argv[0] = Exception::Error(String::New("Error reading from connection"));
-        argv[1] = Undefined();
+        argv[0] = NanError("Error reading from connection");
+        argv[1] = NanUndefined();
     } else {
         Local<Object> globalObj = Context::GetCurrent()->Global();
         Local<Function> bufferConstructor = Local<Function>::Cast(globalObj->Get(String::New("Buffer")));
@@ -201,7 +201,7 @@ void BTSerialPortBinding::EIO_AfterRead(uv_work_t *req) {
 }
 
 void BTSerialPortBinding::Init(Handle<Object> target) {
-    HandleScope scope;
+    NanScope();
 
     Local<FunctionTemplate> t = FunctionTemplate::New(New);
 
@@ -211,9 +211,9 @@ void BTSerialPortBinding::Init(Handle<Object> target) {
     NODE_SET_PROTOTYPE_METHOD(t, "write", Write);
     NODE_SET_PROTOTYPE_METHOD(t, "read", Read);
     NODE_SET_PROTOTYPE_METHOD(t, "close", Close);
-    target->Set(String::NewSymbol("BTSerialPortBinding"), t->GetFunction());
-    target->Set(String::NewSymbol("BTSerialPortBinding"), t->GetFunction());
-    target->Set(String::NewSymbol("BTSerialPortBinding"), t->GetFunction());
+    target->Set(NanNew("BTSerialPortBinding"), t->GetFunction());
+    target->Set(NanNew("BTSerialPortBinding"), t->GetFunction());
+    target->Set(NanNew("BTSerialPortBinding"), t->GetFunction());
 }
 
 BTSerialPortBinding::BTSerialPortBinding() :
@@ -224,7 +224,7 @@ BTSerialPortBinding::~BTSerialPortBinding() {
 }
 
 Handle<Value> BTSerialPortBinding::New(const Arguments& args) {
-    HandleScope scope;
+    NanScope();
 
     uv_mutex_init(&write_queue_mutex);
     ngx_queue_init(&write_queue);
