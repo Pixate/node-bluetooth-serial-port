@@ -97,7 +97,7 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
 void DeviceINQ::Init(Handle<Object> target) {
     HandleScope scope;
 
-    Local<FunctionTemplate> t = FunctionTemplate::New(New);
+    Local<FunctionTemplate> t = NanNew<FunctionTemplate>(New);
 
     t->InstanceTemplate()->SetInternalFieldCount(1);
     t->SetClassName(NanNew("DeviceINQ"));
@@ -118,7 +118,7 @@ DeviceINQ::~DeviceINQ() {
 
 }
 
-Handle<Value> DeviceINQ::New(const Arguments& args) {
+Handle<Value> DeviceINQ::New(const internal::Arguments& args) {
     HandleScope scope;
 
     const char *usage = "usage: DeviceINQ()";
@@ -180,7 +180,7 @@ Handle<Value> DeviceINQ::Inquire(const internal::Arguments& args) {
     NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
+Handle<Value> DeviceINQ::SdpSearch(const internal::Arguments& args) {
     HandleScope scope;
 
     const char *usage = "usage: sdpSearchForRFCOMM(address, uuid, callback)";
@@ -219,7 +219,7 @@ Handle<Value> DeviceINQ::SdpSearch(const Arguments& args) {
     NanReturnUndefined();
 }
 
-Handle<Value> DeviceINQ::ListPairedDevices(const Arguments& args) {
+Handle<Value> DeviceINQ::ListPairedDevices(const internal::Arguments& args) {
     HandleScope scope;
 
     const char *usage = "usage: listPairedDevices(callback)";
