@@ -38,7 +38,7 @@ class DeviceINQ : public node::ObjectWrap {
         struct sdp_baton_t {
             DeviceINQ *inquire;
             uv_work_t request;
-            v8::Persistent<v8::Function> cb;
+            NanCallback* cb;
             int channelID;
             char address[40];
             char uuid[36];

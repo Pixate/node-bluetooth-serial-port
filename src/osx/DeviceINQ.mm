@@ -80,16 +80,17 @@ void DeviceINQ::EIO_AfterSdpSearch(uv_work_t *req) {
 
     TryCatch try_catch;
 
-    Local<Value> argv[1];
-    argv[0] = NanNew(baton->channelID);
-    baton->cb.As<v8::Function>().Call(NanGetCurrentContext()->Global(), 1, argv);
+    Handle<Value> argv[] = {
+      NanNew(baton->channelID)
+    };
+    baton->cb->Call(1, argv);
 
     if (try_catch.HasCaught()) {
         FatalException(try_catch);
     }
 
     baton->inquire->Unref();
-    baton->cb.Reset();
+    delete baton->cb;
     delete baton;
     baton = NULL;
 }
@@ -207,7 +208,8 @@ NAN_METHOD(DeviceINQ::SdpSearch) {
 
     sdp_baton_t *baton = new sdp_baton_t();
     baton->inquire = inquire;
-    baton->cb = NanNew(cb);
+    delete baton->cb;
+    baton->cb = new NanCallback(cb);
     strcpy(baton->address, *address);
     strcpy(baton->uuid, *uuid);
     baton->channelID = -1;
