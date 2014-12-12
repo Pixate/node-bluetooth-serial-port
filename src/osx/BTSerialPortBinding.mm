@@ -274,9 +274,11 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     if(!args[0]->IsObject() || !Buffer::HasInstance(args[0])) {
         return NanThrowTypeError("First argument must be a buffer");
     }
-    Persistent<Object> buffer = Persistent<Object>::New(args[0]->ToObject());
-    void* bufferData = Buffer::Data(buffer);
-    size_t bufferLength = Buffer::Length(buffer);
+    Persistent<Object> buffer;
+    Local<Object> bufferObject = args[0].As<Object>();
+    NanAssignPersistent(buffer, bufferObject);
+    void* bufferData = Buffer::Data(bufferObject);
+    size_t bufferLength = Buffer::Length(bufferObject);
 
     // string
     if (!args[1]->IsString()) {
@@ -326,7 +328,7 @@ NAN_METHOD(BTSerialPortBinding::Close) {
     }
 
     if (!args[0]->IsString()) {
-        return NanThrowError("Argument should be a string value")s;
+        return NanThrowError("Argument should be a string value");
     }
 
     //TODO should be a better way to do this...
