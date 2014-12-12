@@ -254,19 +254,21 @@ Handle<Value> DeviceINQ::ListPairedDevices(const v8::FunctionCallbackInfo<v8::Va
         deviceObj->Set(NanNew("address"), NanNew([device.addressString UTF8String]));
 
         // A device may have multiple services, so enumerate each one
-        Local<Array> servicesArray =  Array::New((int)device.services.count);
+        Local<Array> servicesArray =  NanNew<v8::Array>((int)device.services.count);
         for (int j = 0; j < (int)device.services.count; ++j) {
             IOBluetoothSDPServiceRecord *service = [device.services objectAtIndex:j];
             BluetoothRFCOMMChannelID channelID;
             [service getRFCOMMChannelID:&channelID];
 
             Local<Object> serviceObj = Object::New();
-            serviceObj->Set(String::NewSymbol("channel"), Int32::New((int)channelID));
-            serviceObj->Set(String::NewSymbol("name"), [service getServiceName] ?
-                String::New([[service getServiceName] UTF8String]) : NanUndefined());
+            serviceObj->Set(NanNew("channel"), NanNew((int)channelID));
+            if ([service getServiceName])
+              serviceObj->Set(NanNew("name"), NanNew([[service getServiceName] UTF8String]));
+            else
+              serviceObj->Set(NanNew("name"), NanUndefined());
             servicesArray->Set(j, serviceObj);
         }
-        deviceObj->Set(String::NewSymbol("services"), servicesArray);
+        deviceObj->Set(NanNew("services"), servicesArray);
 
         resultArray->Set(i, deviceObj);
     }
