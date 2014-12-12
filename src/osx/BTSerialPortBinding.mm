@@ -242,9 +242,6 @@ NAN_METHOD(BTSerialPortBinding::New) {
         return NanThrowTypeError("ChannelID should be a positive int value.");
     }
 
-    Local<Function> cb = Local<Function>::Cast(args[2]);
-    Local<Function> ecb = Local<Function>::Cast(args[3]);
-
     BTSerialPortBinding* rfcomm = new BTSerialPortBinding();
     rfcomm->Wrap(args.This());
 
@@ -253,8 +250,8 @@ NAN_METHOD(BTSerialPortBinding::New) {
     baton->channelID = channelID;
 
     strcpy(baton->address, *address);
-    baton->cb = NanCallback(cb);
-    baton->ecb = NanCallback(ecb);
+    baton->cb = NanCallback(args[2].As<v8::Function>());
+    baton->ecb = NanCallback(args[3].As<v8::Function>());
     baton->request.data = baton;
     baton->rfcomm->Ref();
 
@@ -291,7 +288,6 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     if(!args[2]->IsFunction()) {
         return NanThrowTypeError("Third argument must be a function");
     }
-    v8::Local<v8::Value> callback = args[2];
 
     write_baton_t *baton = new write_baton_t();
     memset(baton, 0, sizeof(write_baton_t));
@@ -301,7 +297,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     baton->buffer = buffer;
     baton->bufferData = bufferData;
     baton->bufferLength = bufferLength;
-    baton->callback = NanCallback(callback);
+    baton->callback = NanCallback(args[2].As<v8::Function>());
 
     queued_write_t *queuedWrite = new queued_write_t();
     memset(queuedWrite, 0, sizeof(queued_write_t));
