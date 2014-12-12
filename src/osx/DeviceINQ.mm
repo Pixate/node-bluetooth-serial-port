@@ -129,7 +129,7 @@ NAN_METHOD(DeviceINQ::New) {
     DeviceINQ* inquire = new DeviceINQ();
     inquire->Wrap(args.This());
 
-    return args.This();
+    NanReturnValue(args.This());
 }
 
 NAN_METHOD(DeviceINQ::Inquire) {
