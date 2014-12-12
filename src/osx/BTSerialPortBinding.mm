@@ -250,8 +250,8 @@ NAN_METHOD(BTSerialPortBinding::New) {
     baton->channelID = channelID;
 
     strcpy(baton->address, *address);
-    baton->cb = new NanCallback(args[2].As<v8::Function>());
-    baton->ecb = new NanCallback(args[3].As<v8::Function>());
+    baton->cb = new NanCallback(args[2].As<Function>());
+    baton->ecb = new NanCallback(args[3].As<Function>());
     baton->request.data = baton;
     baton->rfcomm->Ref();
 
@@ -295,7 +295,7 @@ NAN_METHOD(BTSerialPortBinding::Write) {
     NanAssignPersistent(baton->buffer, bufferObject);
     baton->bufferData = bufferData;
     baton->bufferLength = bufferLength;
-    baton->callback = new NanCallback(args[2].As<v8::Function>());
+    baton->callback = new NanCallback(args[2].As<Function>());
 
     queued_write_t *queuedWrite = new queued_write_t();
     memset(queuedWrite, 0, sizeof(queued_write_t));
@@ -345,7 +345,7 @@ NAN_METHOD(BTSerialPortBinding::Read) {
         return NanThrowError("usage: read(callback)");
     }
 
-    Local<Function> cb = Local<Function>::Cast(args[0]);
+    Local<Function> cb = args[0].As<Function>();
 
     BTSerialPortBinding* rfcomm = ObjectWrap::Unwrap<BTSerialPortBinding>(args.This());
 
