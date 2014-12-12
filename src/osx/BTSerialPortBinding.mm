@@ -11,6 +11,7 @@
 
 #include <v8.h>
 #include <node.h>
+#include <nan.h>
 #include <node_buffer.h>
 #include <string.h>
 #include <stdlib.h>
@@ -261,8 +262,8 @@ Handle<Value> BTSerialPortBinding::New(const Arguments& args) {
     return args.This();
 }
 
-Handle<Value> BTSerialPortBinding::Write(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTSerialPortBinding::Write) {
+    NanScope();
 
     // usage
     if (args.Length() != 3) {
@@ -314,11 +315,11 @@ Handle<Value> BTSerialPortBinding::Write(const Arguments& args) {
     }
     uv_mutex_unlock(&write_queue_mutex);
 
-    return scope.Close(v8::Undefined());
+    NanReturnUndefined();
 }
 
-Handle<Value> BTSerialPortBinding::Close(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTSerialPortBinding::Close) {
+    NanScope();
 
     if (args.Length() != 1) {
         return scope.Close(ThrowException(Exception::Error(String::New("usage: close(address)"))));
@@ -337,11 +338,11 @@ Handle<Value> BTSerialPortBinding::Close(const Arguments& args) {
     BluetoothWorker *worker = [BluetoothWorker getInstance];
     [worker disconnectFromDevice: address];
 
-    return Undefined();
+    NanReturnUndefined();
 }
 
-Handle<Value> BTSerialPortBinding::Read(const Arguments& args) {
-    HandleScope scope;
+NAN_METHOD(BTSerialPortBinding::Read) {
+    NanScope();
 
     if (args.Length() != 1) {
         return scope.Close(ThrowException(Exception::Error(String::New("usage: read(callback)"))));
@@ -363,5 +364,5 @@ Handle<Value> BTSerialPortBinding::Read(const Arguments& args) {
 
     uv_queue_work(uv_default_loop(), &baton->request, EIO_Read, (uv_after_work_cb)EIO_AfterRead);
 
-    return Undefined();
+    NanReturnUndefined();
 }
